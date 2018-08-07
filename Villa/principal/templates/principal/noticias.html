@@ -1,0 +1,23 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Principal | {% endblock %}
+
+
+{% block contenido %}
+{% load staticfiles %}
+
+<link rel="stylesheet" href="{% static 'css/animate.css' %}">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div class="col-md-3 center-block quitar-float text-center espacio-arriba">
+		<img src="{% static 'img/agua.jpg' %}" class="animated fadeIn">
+		<h1 class="dancing tam-fuente celeste animated fadeIn retraso-1">Villa Del Norte</h1>
+		<div class="animated fadeInDown retraso-2">
+			<h2>"La mejor manera de tomar la vida"</h2>
+			<p> 
+				Somos la empresa de agua mas grande
+				de la provincia de Salta
+			</p>
+		</div>	
+</div>
+{% endblock %}

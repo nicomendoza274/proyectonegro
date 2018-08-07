@@ -1,0 +1,45 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Ventas | {% endblock %}
+
+{% block contenido %}
+<h1 class="text-center">Ventas</h1>
+<div class="col-md-12">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Fecha</h4></th>
+                <th><h4 class="text-center">Cliente</h4></th>
+                <th><h4 class="text-center">DNI</h4></th>
+                <th><h4 class="text-center">Domicilio</h4></th>
+                <th><h4 class="text-center">Producto</h4></th>
+                <th><h4 class="text-center">Cantidad</h4></th>
+                <th><h4 class="text-center">Forma de pago</h4></th>
+                <th><h4 class="text-center">Total</h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td><h4 class="text-center">{{venta.fecha}}</h4></td>
+                <td><h4 class="text-center">{{venta.pedido.cli_id.nombre}} {{venta.pedido.cli_id.apellido}}</h4></td>
+                <td><h4 class="text-center">{{venta.pedido.cli_id.dni}}</h4></td>
+                <td><h4 class="text-center">{{venta.pedido.direccion.direccion}}</h4></td>
+                <td>
+                {% for det in venta.pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{det.art_id.nombre}} {{det.art_id.envase}} {{det.art_id.contenido.nom_cont}} {{det.art_id.capacidad}}L</h4>
+                {% endfor %}
+                </td>
+                <td>
+                {% for det in venta.pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{det.cantidad}}</h4>
+                {% endfor %}
+                </td>
+                <td><h4 class="text-center">{{venta.pedido.formapago}}</h4></td>
+                <td><h4 class="text-center">${{venta.pedido.total}}</h4></td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+</div>
+{% endblock %}

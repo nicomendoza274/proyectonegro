@@ -1,0 +1,104 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Stock Insumos| {% endblock %}
+
+{% block contenido %}
+
+
+<!--Cuerpo principal-->
+
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><label>STOCK DE INSUMOS</label></div>
+    
+
+        <!-- buscar-->
+        <div class="col-sm-6">
+
+            <form method="post" action="{% url 'stock:buscar' %}">
+                {% csrf_token %}
+                                            
+                <div class="form-group">
+                    <label>Seleccione deposito:</label>
+                    <select name="numdepo" id="id_select" class="form-control">
+                            <option value=0>Todos</option>
+                            {% for depo in dep %}
+                            <option value={{depo.id}}>{{depo.ubicacion}}</option>
+                            {% endfor %}                               
+                    </select>
+                </div>                    
+
+
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+
+                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+            </form>
+
+        </div> 
+
+        <div class="col-sm-1">
+            <button class="btn btn-default" onclick="location.href='{% url 'stock:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+
+        <!-- prueba reporte-->
+        <div class="col-sm-1">
+            <button class="btn btn-default" onclick="location.href='{% url 'stock:report' %}';"><span class="glyphicon glyphicon-file"></span></button>
+        </div>
+        <!-- prueba reporte-->
+
+        <div class="col-sm-2">
+            <button class="btn btn-success" onclick="location.href='{% url 'stockart:index' %}';"><span class="glyphicon glyphicon-eye-open"></span> Ir a stock de productos</button>
+        </div>
+
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Nombre</h4></th>
+                <th><h4 class="text-center">Deposito</h4></th>
+                <th><h4 class="text-center">Existencia minima</h4></th>
+                <th><h4 class="text-center">Existencia actual</h4></th>
+                <th><h4 class="text-center">Estado</h4></th>
+                <th><h4 class="text-center"></h4></th> 
+            </tr>   
+        </thead>
+
+        <tbody>
+            {% for stock in stockinsumos %}
+            <tr>
+                {% for insumos in insumos %}
+                    {%  if stock.ins_id_id == insumos.id  %}
+                        {% if insumos.otro == 0 %}
+                        <td><h4 class="text-center text-capitalize">{{insumos.nombre}}</h4></td>
+                        {% else %}
+                        <td><h4 class="text-center text-capitalize">{{insumos.nombre}} {{insumos.otro}}L</h4></td>
+                        {% endif %}
+                        {% for dep in dep %}
+                        {% if stock.dep_id_id == dep.id %}
+                        <td><h4 class="text-center">{{dep.ubicacion}}</h4></td>
+                        {% endif %}
+                        {% endfor %}
+                        <td><h4 class="text-center">{{insumos.existenciamin}}</h4></td>
+                        <td><h4 class="text-center">{{stock.cantidad}}</h4></td>
+                        {% if insumos.estado == 1 %}
+                            <td><h4 class="text-center">Disponible para compra</h4></td>
+                        {% else %}
+                            <td><h4 class="text-center">No disponible</h4></td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

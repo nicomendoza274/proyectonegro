@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block titulo %}{% endblock %}Villa del Norte</title>
+    {% load staticfiles %}
+    <link rel="icon" href="{% static 'img/water.ico' %}" type="image/x-icon">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    {% block extrastyle %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display-->
+            <div class="navbar-header">
+                <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                </button>
+                Lo de arriba es para el boton que aparece cuando se achica la pantalla
+                -->
+                <a class="navbar-brand" href="{% url 'principal:index' %}">Villa del Norte</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.first_name == '' %}
+                            <li><a href="{% url 'abmclientes:index' %}">Clientes</a></li>
+                            <li><a href="{% url 'domicilios:index' %}">Domicilios</a></li>
+                            <li><a href="{% url 'abmarticulos:index' %}">Productos</a></li>
+                            <li><a href="{% url 'abminsumos:index' %}">Insumos</a></li>
+                            <li><a href="{% url 'abmempleados:index' %}">Empleados</a></li>
+                            <li><a href="{% url 'abmproveedores:index' %}">Proveedores</a></li>
+                            <li><a href="{% url 'abmpedidos:index' %}">Pedidos</a></li>
+                            <li><a href="{% url 'asignarpedidos:index' %}">Asignar pedidos</a></li>
+                            <li><a href="{% url 'verruta:index' %}">Ruta del dia</a></li>
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Camiones<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'cargarcamion:index' %}">Cargar</a></li>
+                                    <li><a href="{% url 'descargarcamion:index' %}">Descargar</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="{% url 'despacharcamion:index' %}">Despachar Camiones</a></li>
+                            <li><a href="{% url 'ventas:index' %}">Ventas</a></li>
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Produccion<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'produccion:index2' %}">Consultar</a></li>
+                                    <li><a href="{% url 'produccion:index' %}">Nuevo</a></li>
+                                   <!--<li class="divider"></li>-->
+                                </ul>
+                            </li>
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Stock<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'stock:index' %}">Insumos</a></li>
+                                    <li><a href="{% url 'stockart:index' %}">Productos</a></li>
+                                    <!--<li class="divider"></li>-->
+                                </ul>
+                            </li>
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Remitos<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'remito:index' %}">Consultar</a></li>
+                                    <li><a href="{% url 'remito:index3' %}">Nuevo</a></li>
+                                </ul>
+                            </li>
+                        {% elif request.user.first_name == 'Repartidor' %}
+                            <li><a href="{% url 'verruta:index' %}">Ruta del dia</a></li>
+                        {% elif request.user.first_name == 'Administrador' %}
+                            <li><a href="{% url 'abmempleados:index' %}">Empleados</a></li>
+                            <li><a href="{% url 'abmarticulos:index' %}">Productos</a></li>
+                            <li><a href="{% url 'abminsumos:index' %}">Insumos</a></li>
+                            <li><a href="{% url 'abmproveedores:index' %}">Proveedores</a></li>
+                            <li><a href="{% url 'ventas:index' %}">Ventas</a></li>
+                        {% elif request.user.first_name == 'Oficinista' %}
+                            <li><a href="{% url 'asignarpedidos:index' %}">Asignar pedidos</a></li>
+                            <li><a href="{% url 'ventas:index' %}">Ventas</a></li>
+                        {% elif request.user.first_name == 'Recepcionista' %}
+                            <li><a href="{% url 'abmpedidos:index' %}">Pedidos</a></li>
+                            <li><a href="{% url 'abmclientes:index' %}">Clientes</a></li>
+                            <li><a href="{% url 'domicilios:index' %}">Domicilios</a></li>
+                            <li><a href="{% url 'ventas:index' %}">Ventas</a></li>
+                            <li><a href="{% url 'despacharcamion:index' %}">Despachar Camiones</a></li>
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Remitos<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'remito:index' %}">Consultar</a></li>
+                                    <li><a href="{% url 'remito:index3' %}">Nuevo</a></li>
+                                </ul>
+                            </li>
+                        {% elif request.user.first_name == 'Depósito' %}
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Camiones<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'cargarcamion:index' %}">Cargar</a></li>
+                                    <li><a href="{% url 'descargarcamion:index' %}">Descargar</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Stock<span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="{% url 'stock:index' %}">Insumos</a></li>
+                                    <li><a href="{% url 'stockart:index' %}">Productos</a></li>
+                                    <!--<li class="divider"></li>-->
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                            <script>
+                                window.location.replace("{% url 'log:index' %}");
+                            </script>
+                    {% endif %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">{{ request.user.username }}<span class="glyphicon glyphicon-user"></span></a></li>
+                    <li><a href="{% url 'log:salir' %}">Salir  <span class="glyphicon glyphicon-off"></span></a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    {% block contenido %}
+    {% endblock %}
+</body>
+</html>

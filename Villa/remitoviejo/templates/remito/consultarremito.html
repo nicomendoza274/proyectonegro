@@ -1,0 +1,145 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %} Remito | {% endblock %}
+{% block extrastyle%}
+
+    {% load staticfiles %}
+    <link href="{% static 'css/bootstrap-datepicker3.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+
+<h1 class="text-center">Remitos</h1>
+<!--Cuerpo principal-->
+<!--div class="row">
+    <div class="form-inline">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-8">
+            <h1>Remitos</h1>
+            <form method="post" action="{% url 'remito:buscar' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                        <!--<select name="select" id="id_select">-->
+                        <!--select name="tipo" id="id_select" class="form-control" onchange= "getIndex()"
+                        <label>Seleccione proveedor:</label>
+                        <select name="buscarpor" id="buscarpor" class="selectpicker" data-style="btn-primary" > <!-- onchange="habilita()"
+                            <option value=0>Todos</option>
+                                {% for prov in prov %}
+                                    <option value={{prov.id}}> {{prov.nombre}}</option>
+                                {% endfor %}      
+                        </select>
+                          
+                        <label class="control-label">Desde:</label>
+                            <!--div class="col-sm-3"
+                            <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-end-date="0d">
+                                <input type="text" size="8" class="form-control" name="fecdesde" pattern="\d\d/\d\d/\d\d\d\d" >
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+
+                        <label class="control-label">Hasta:</label>
+                            <!--div class="col-sm-3"
+                            <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
+                                <input type="text" size="8" class="form-control" name="fechasta" pattern="\d\d/\d\d/\d\d\d\d" >
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>     
+                        
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-1">
+            <button class="btn btn-default" onclick="location.href='{% url 'remito:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+
+        <button class="btn btn-success" onclick="location.href='{% url 'remito:index2' %}';"><span class="glyphicon glyphicon-plus"></span> Nuevo Remito</button>
+    </div>
+</div-->
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Codigo</h4></th>
+                <th><h4 class="text-center">Proveedor</h4></th>
+                <th><h4 class="text-center">Fecha</h4></th>
+
+            </tr>
+        </thead>
+        <tbody>
+        <!--{% if athlete_list %}
+                        {{ athlete_list|length }}
+        {% elif athlete_in_locker_room_list %}
+        {% else %}
+
+        {% endif %}-->
+            {% for rem in rem %}
+            <tr id="tr{{rem.codigo}}">
+                <td><h4 class="text-center">{{rem.codigo}}</h4></td>
+                <td><h4 class="text-center">{{rem.prov_id.nombre}}</h4></td>
+                <td><h4 class="text-center">{{rem.fecha_recib}}</h4></td>
+                    <td align="center">
+                    <button type="button" class="btn btn-info" data-toggle="collapse" data-target=".trcolapsable{{rem.codigo}}"
+                            onclick="if (document.getElementById('tr' + {{rem.codigo}}).className == ''){
+                                document.getElementById('tr' + {{rem.codigo}}).className = 'info';
+                                document.getElementById('gly' + {{rem.codigo}}).className = 'glyphicon glyphicon-eye-close';
+                            }else{
+                                document.getElementById('tr' + {{rem.codigo}}).className = '';
+                                document.getElementById('gly' + {{rem.codigo}}).className = 'glyphicon glyphicon-eye-open';
+                            }
+                            "><span id="gly{{rem.codigo}}" class="glyphicon glyphicon-eye-open"></span></button>
+            </tr>
+            <tr class="collapse out trcolapsable{{rem.codigo}}" id="trcolapsable{{rem.codigo}}">
+                    <th><h4 class="text-center">Insumo</h4></th>
+                    <th><h4 class="text-center">Vencimiento</h4></th>
+                    <th><h4 class="text-center">Cantidad</h4></th>
+                    <th><h4 class="text-center">Deposito</h4></th>
+            </tr>
+            {% for detalle in rem.detalle_remito_set.all %}
+            <tr class="collapse out trcolapsable{{rem.codigo}}">
+                    {% if insumo.tipo == 'envase' or insumo.tipo == 'etiqueta' %}
+                    <td><h4 class="text-center text-capitalize">{{detalle.ins_id.nombre}} {{detalle.ins_id.otro}}L</h4></td>
+                    {% else %}
+                    <td><h4 class="text-center text-capitalize">{{detalle.ins_id.nombre}}</h4></td>
+                    {% endif %}
+                    <td><h4 class="text-center">{{detalle.vencimiento}}</h4></td>
+                    <td><h4 class="text-center">{{detalle.cant_recib}}</h4></td>
+                    <td><h4 class="text-center">{{detalle.dep_id.ubicacion}}</h4></td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+<script>
+function getIndex() {
+    document.getElementById("Indice").innerHTML =
+    document.getElementById("id_select").selectedValue;
+}
+</script>
+
+<script>
+// function habilita() {
+//     var l = document.getElementById('buscarpor').value
+//     if (l != '0')
+//         {
+//         document.getElementById('busqueda').removeAttribute('readonly', true);
+//         }
+//     else
+//         { 
+//         var h = document.getElementById('busqueda');
+//         h.setAttribute('readonly', false);
+//         }
+// }
+</script>
+
+{% endblock %}

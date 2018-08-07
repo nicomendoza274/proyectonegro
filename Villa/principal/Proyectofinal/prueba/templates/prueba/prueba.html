@@ -1,0 +1,86 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Prueba | {% endblock %}
+
+{% block extrastyle%}
+
+    {% load staticfiles %}
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'css/bootstrap-duallistbox.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/jquery.bootstrap-duallistbox.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+<!--
+<div>
+
+    <select multiple="multiple" size="{{cantidadinsumos}}" name="duallistbox_demo1" id="duallistbox_demo1">
+        {% for i in insumos %}
+            <option value="{{i.nombre}}">{{i.nombre}}</option>
+        {% endfor %}
+    </select>
+
+</div>
+
+<div>
+
+    <table>
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Articulos</h4></th>
+                <th><h4 class="text-center">Precio</h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="agregar">
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<button type="button" class="btn btn-success" onclick="(#duallistbox_demo1).append(&quot;ApplesOranges&quot;);(#duallistbox_demo1).bootstrapDualListbox(&quot;refresh&quot;);">Go!</button>
+
+<!--
+<script>
+    $('#agregar').append()
+    [].forEach.call(document.getElementsByClassName('list-group-item active'), function(element) {
+                  element.className = 'list-group-item hidden';
+</script>
+-->
+
+
+<li><input type="checkbox" id="select_all"/> Selecct All</li>
+<li><input class="checkbox" type="checkbox" name="check[]"> This is Item 1</li>
+<li><input class="checkbox" type="checkbox" name="check[]"> This is Item 2</li>
+<li><input class="checkbox" type="checkbox" name="check[]"> This is Item 3</li>
+<li><input class="checkbox" type="checkbox" name="check[]"> This is Item 4</li>
+<li><input class="checkbox" type="checkbox" name="check[]"> This is Item 5</li>
+<input class="checkbox" type="checkbox" name="check[]"> This is Item 6
+
+
+<script>
+//select all checkboxes
+$("#select_all").change(function(){  //"select all" change
+    var status = this.checked; // "select all" checked status
+    $('.checkbox').each(function(){ //iterate all listed checkbox items
+        this.checked = status; //change ".checkbox" checked status
+    });
+});
+
+$('.checkbox').change(function(){ //".checkbox" change
+    //uncheck "select all", if one of the listed checkbox item is unchecked
+    if(this.checked == false){ //if this item is unchecked
+        $("#select_all")[0].checked = false; //change "select all" checked status to false
+    }
+
+    //check "select all" if all checkbox items are checked
+    if ($('.checkbox:checked').length == $('.checkbox').length ){
+        $("#select_all")[0].checked = true; //change "select all" checked status to true
+    }
+});
+</script>
+
+
+{% endblock %}

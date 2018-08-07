@@ -1,0 +1,9 @@
+Este es el proyecto que tengo hasta el momento, lo unico que faltan son los archivos __init__.py que no me los deja subir, pero igual estan vacios.
+Deberian estar en:
+/abmclientes
+/abmclientes/migrations
+/principal
+/principal/migrations
+/villa
+
+Agreguenlos porque sino no les va a correr.

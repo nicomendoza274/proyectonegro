@@ -1,0 +1,72 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Domicilios | {% endblock %}
+
+{% block extrastyle%}
+
+    {% load staticfiles %}
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCC7C0WfLDs9jtP76Z7WdGrLFCbvR3mLYU"></script>
+    <script type="text/javascript" src="{% static 'js/mapas.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+<h1 class="text-center">Domicilios</h1>
+<div class="col-md-6">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Cliente</h4></th>
+                <th><h4 class="text-center">DNI</h4></th>
+                <th><h4 class="text-center">Domicilio</h4></th>
+                <th><h4 class="text-center">Latitud</h4></th>
+                <th><h4 class="text-center">Longitud</h4></th>
+                <th><h4 class="text-center"></h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for domicilio in domicilios %}
+            <tr id="tr{{domicilio.id}}">
+                <td><h4 class="text-center">{{domicilio.cli_id.nombre}} {{domicilio.cli_id.apellido}}</h4></td>
+                <td><h4 class="text-center">{{domicilio.cli_id.dni}}</h4></td>
+                <td><h4 class="text-center">{{domicilio.direccion}}</h4></td>
+                <td><h4 class="text-center">{{domicilio.latitud}}</h4></td>
+                <td><h4 class="text-center">{{domicilio.longitud}}</h4></td>
+                <td align="center">
+                        <button type="button" class="btn btn-success" id="{{domicilio.id}}" onclick="
+                        info = document.getElementsByClassName('info');
+                        if (info.length != 0){info[0].className = '';}
+                        document.getElementById('tr' + {{domicilio.id}}).className = 'info';
+                        document.getElementById('aguardar').value=(this).id;
+                        AgregarMarcador('{{domicilio.latitud}}','{{domicilio.longitud}}','{{domicilio.direccion}}');
+                        ">
+                            <span class="glyphicon glyphicon-globe"></span>
+                        </button>
+                </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+</div>
+<div class="col-md-6">
+    <div class="form-inline">
+        <h4 class="text-right">
+            <form method="post" action="{% url 'domicilios:guardar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" id="latitud" name="latitud" readonly >
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="longitud" name="longitud" readonly >
+                </div>
+                <button type="submit" class="btn btn-success" id="aguardar" name="domicilio"><span class="glyphicon glyphicon-floppy-disk"></span></button>
+            </form>
+        </h4>
+    </div>
+    <hr>
+    <div class="container" style="width:auto;height:750px;">
+        <div id="googleMap" style="width: 100%;height:100%;"></div>
+    </div>
+</div>
+
+{% endblock %}

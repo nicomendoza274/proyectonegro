@@ -1,0 +1,420 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Proveedores | {% endblock %}
+
+{% block extrastyle%}
+
+    {% load staticfiles %}
+        <script type="text/javascript" src="{% static 'js/listgroup.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+
+<!-- PopUp para agregar proveedores-->
+<div id="agregarproveedor" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Agregar proveedor</h4>
+</div>
+<div class="modal-body">
+<form id= "agregaprov" class="form-horizontal" method="post" action="{% url 'abmproveedores:crearproveedor' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="nombre" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Telefono</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="telefono" pattern="[0-9-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">CUIT</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="cuit" pattern="\d{2}-\d{8}-\d{1}" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="direccion" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Realiza envios</label>
+        <div class="col-sm-4">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="envio" id="sienvia" value="True" autocomplete="off" checked> Si
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="envio" id="noenvia" value="False" autocomplete="off"> No
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Cuenta corriente</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="cuentacorriente" pattern="[1-9]\d+" required="">
+        </div>
+    </div>
+    <div align="center">
+    <button type="submit" class="btn btn-success" name="proveedor">Agregar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--PopUp para editar proveedores-->
+<div id="editarproveedor" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Editar proveedor</h4>
+</div>
+<div class="modal-body">
+<form id="editaprov" class="form-horizontal" method="post" action="{% url 'abmproveedores:editarproveedor' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="pro_nombre" name="nombre" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Telefono</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="pro_telefono" name="telefono" pattern="[0-9-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">CUIT</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="pro_cuit" name="cuit" pattern="\d{2}-\d{8}-\d{1}" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="pro_direccion" name="direccion" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Realiza envios</label>
+        <div class="col-sm-4">
+            <div class="btn-group" data-toggle="buttons">
+                <label id="btnsienvia" class="btn btn-primary">
+                    <input type="radio" name="envio" id="cargarsienvia" value="True" autocomplete="off"> Si
+                </label>
+                <label id="btnnoenvia" class="btn btn-primary">
+                    <input type="radio" name="envio" id="cargarnoenvia" value="False" autocomplete="off"> No
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Cuenta corriente</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="pro_cuentacorriente" name="cuentacorriente" pattern="[1-9]\d+" required="">
+        </div>
+    </div>
+    <div align="center">
+    <button type="submit" class="btn btn-success" id="acambiar" name="editarproveedor">Editar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--PopUp para editar lista de articulos de proveedores-->
+<div id="editarlistaproveedor" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Editar lista de articulos de proveedor</h4>
+    </div>
+<div class="modal-body">
+    <div class="col-md-12">
+        <div class="dropdownarticulos">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Articulos
+            <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                {% for insumo in insumos%}
+                    <li><a href="#">{{insumo.nombre}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!--<div class="col-md-5">
+            <select class="list-group" multiple>
+                {% for insumo in insumos%}
+                    <option>{{insumo.nombre}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <div class="btn-group-vertical">
+              <button type="button" class="btn btn-primary" onclick="
+              [].forEach.call(document.getElementsByClassName('list-group-item active'), function(element) {
+                  element.className = 'list-group-item hidden';
+                  var x =element.innerHtml;
+                  $('#listaenviar').append('<option value=element.innerHtml></option>');
+              });
+              "><span class="glyphicon glyphicon-chevron-right"></span></button>
+              <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-chevron-left"></span></button>
+            </div>
+        </div>
+        <div id="divlista" class="col-md-5">
+            <select id="listaenviar" name="listaenviar" class="list-group" multiple>
+
+            </select>
+        </div>-->
+    </div>
+    <form class="form-horizontal" method="post" action="{% url 'abmproveedores:editarlistaproveedor' %}">
+        {% csrf_token %}
+        <div id="ins_lista">
+
+        </div>
+        <div align="center">
+            <button type="submit" class="btn btn-success" id="listaacambiar" name="editarlistaproveedor">Editar</button>
+        </div>
+    </form>
+
+</div>
+</div>
+</div>
+</div>
+<!--Popup para error de duplicado-->
+<div id="errorproveedor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error_proveedor}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--PopUp confirmacion eliminacion-->
+<div id="eliminarproveedor" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Eliminar proveedor</h4>
+</div>
+<div class="modal-body">
+    <div align="center">
+        <h4>¿Esta seguro?</h4><br>
+        <form class="form-horizontal" method="post" action="{% url 'abmproveedores:eliminarproveedor' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminarproveedor">Eliminar</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form method="post" action="{% url 'abmproveedores:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="telefonobuscar" placeholder="Telefono">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="cuitbuscar" placeholder="CUIT">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="cuentacorrientebuscar" placeholder="Cuenta Corriente">
+                </div>
+                <!--
+                <div class="form-group">
+                    <input type="checkbox" class="form-control" name="enviosbuscar">Envios
+                </div>
+                -->
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+            </form>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-default" onclick="location.href='{% url 'abmproveedores:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#agregarproveedor"><span class="glyphicon glyphicon-plus"></span></button>
+        </div>
+    </div>
+</div>
+<h1 class="text-center">Listado de proveedores</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th><h4 class="text-center">Nombre</h4></th>
+                    <th><h4 class="text-center">Telefono</h4></th>
+                    <th><h4 class="text-center">CUIT</h4></th>
+                    <th><h4 class="text-center">Domicilio</h4></th>
+                    <th><h4 class="text-center">Realiza envios</h4></th>
+                    <th><h4 class="text-center">Cuenta Corriente</h4></th>
+                    <th><h4 class="text-center"></h4></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr id="tr{{proveedor.id}}">
+                    <td><h4 class="text-center">{{proveedor.nombre}}</h4></td>
+                    <td><h4 class="text-center">{{proveedor.telefono}}</h4></td>
+                    <td><h4 class="text-center">{{proveedor.cuit}}</h4></td>
+                    <td><h4 class="text-center">{{proveedor.direccion}}</h4></td>
+                    <td><h4 class="text-center" id="envio{{proveedor.id}}">
+                        {% if proveedor.envios == True %}
+                        <script type="text/javascript">
+                            document.getElementById('envio'+{{proveedor.id}}).innerHTML = 'Si'
+                        </script>
+                        {% else %}
+                        <script type="text/javascript">
+                            document.getElementById('envio'+{{proveedor.id}}).innerHTML = 'No'
+                        </script>
+                        {% endif %}
+                    </h4></td>
+                    <td><h4 class="text-center">{{proveedor.cuentacorriente}}</h4></td>
+                    <td align="center">
+                        <div class="btn-group"><!--
+                            <button type="button" class="btn btn-info" data-toggle="collapse" data-target=".trcolapsable{{proveedor.id}}"
+                                    onclick="if (document.getElementById('tr' + {{proveedor.id}}).className == ''){
+                                    document.getElementById('tr' + {{proveedor.id}}).className = 'info';
+                                    document.getElementById('gly' + {{proveedor.id}}).className = 'glyphicon glyphicon-eye-close';
+                                    }else{
+                                    document.getElementById('tr' + {{proveedor.id}}).className = '';
+                                    document.getElementById('gly' + {{proveedor.id}}).className = 'glyphicon glyphicon-eye-open';
+                                    }
+                                    "><span id="gly{{proveedor.id}}" class="glyphicon glyphicon-eye-open"></span></button>-->
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarproveedor" id="{{proveedor.id}}"
+                                    onclick="document.getElementById('acambiar').value=(this).id;
+                                    document.getElementById('pro_nombre').value='{{proveedor.nombre}}';
+                                    document.getElementById('pro_telefono').value='{{proveedor.telefono}}';
+                                    document.getElementById('pro_cuit').value='{{proveedor.cuit}}';
+                                    document.getElementById('pro_direccion').value='{{proveedor.direccion}}';
+                                    if ('{{proveedor.envios}}' == 'True'){
+                                        document.getElementById('cargarsienvia').checked = true;
+                                        document.getElementById('btnsienvia').className = 'btn btn-primary active'
+                                        document.getElementById('btnnoenvia').className = 'btn btn-primary'
+                                    }else{
+                                        document.getElementById('cargarnoenvia').checked = true;
+                                        document.getElementById('btnnoenvia').className = 'btn btn-primary active'
+                                        document.getElementById('btnsienvia').className = 'btn btn-primary'
+                                    }
+                                    document.getElementById('pro_cuentacorriente').value='{{proveedor.cuentacorriente}}';
+                                    "><span class="glyphicon glyphicon-pencil"></span></button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eliminarproveedor" id="{{proveedor.id}}" onclick="document.getElementById('aeliminar').value=(this).id;"><span class="glyphicon glyphicon-remove"></span></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="collapse out trcolapsable{{proveedor.id}}" id="trcolapsable{{proveedor.id}}">
+                    <th><h4 class="text-center">Nombre</h4></th>
+                    <th><h4 class="text-center">Precio</h4></th>
+                    <th><h4 class="text-center"></h4><button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarlistaproveedor"
+                    onclick="
+                    {% for articulo in proveedor.insumo_proveedor_set.all %}
+                        $('#ins_lista').append(' <div class=&quot;form-group&quot;><div class=&quot;col-md-3&quot;><input type=&quot;text&quot; class=form-control name=&quot;nombre{{articulo.ins_id.nombre}}&quot; value=&quot;{{articulo.ins_id.nombre}}&quot; ></div><div class=&quot;col-md-3&quot;><input class=form-control name=&quot;precio{{articulo.ins_id.nombre}}&quot; value=&quot;{{articulo.precio_ult_comp}}&quot; ></div></div>');
+                    {% endfor %}
+                    ">
+                    <span class="glyphicon glyphicon-pencil"></span></button></th>
+                </tr>
+                {% for articulo in proveedor.insumo_proveedor_set.all %}
+                    <tr class="collapse out trcolapsable{{proveedor.id}}">
+                            <td><h4 class="text-center">{{articulo.ins_id.nombre}}</h4></td>
+                            <td><h4 class="text-center">{{articulo.precio_ult_comp}}</h4></td>
+                    </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+{% if error_proveedor %}
+<script type="text/javascript">
+    $('#errorproveedor').modal('show');
+</script>
+{% endif %}
+
+<script type="text/javascript">
+$('#editarlistaproveedor').on('hidden.bs.modal', function(){
+    document.getElementById('ins_lista').innerHTML = '';
+});
+</script>
+
+<script type="text/javascript">
+var count = 0;
+var button = document.getElementById('nuevo_articulo');
+
+button.onclick = function(){
+    if (!document.getElementById('nuevo_articulo' + count-1)){
+        count++;
+        $('#ins_lista').append('<div class=&quot;form-group&quot;><div class=&quot;col-md-3&quot;><input type=&quot;text&quot; class=form-control name=&quot;nombre{{articulo.ins_id.nombre}}&quot; value=&quot;{{articulo.ins_id.nombre}}&quot; ></div><div class=&quot;col-md-3&quot;><input class=form-control name=&quot;precio{{articulo.ins_id.nombre}}&quot; value=&quot;{{articulo.precio_ult_comp}}&quot; ></div></div>');
+    }
+}
+</script>
+
+<script type="text/javascript">
+//valida 
+$('#agregaprov input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+<script type="text/javascript">
+//valida 
+$('#editaprov input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %} Produccion | {% endblock %}
+
+{% block contenido %}
+
+<!-- PopUp para agregar produccion-->
+<div id="agregarcopiaprod" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Agregar Produccion</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" method="post" action="{% url 'produccion:crearcopiaprod' %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Producto</label>
+                                <div class="col-sm-4">
+                                   <select name="articulo_reg2" id="id_select" class="form-control text-capitalize">
+                                    {% for art in art %}
+                                        <option value={{art.id}} name="articulo_reg2">
+                                        {{art.nombre}} {{art.capacidad}}L
+                                        </option>
+                                    {% endfor %}
+                                    
+                                    </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Cantidad</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" name="cantidad2" pattern="[0-9]+" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Deposito</label>
+                                <div class="col-sm-4">
+                                   <select name="deposito2" id="id_select" class="form-control">
+                                    {% for dep in dep %}
+                                        <option value={{dep.id}}>{{dep.ubicacion}}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                        </div>
+
+                        <div align="center">
+                            <button type="submit" class="btn btn-success" name="prod">Agregar</button>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--PopUp para editar produccion-->
+<div id="editarproduccion" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Editar Nueva Produccion</h4>
+            </div>
+
+            <div class="modal-body">
+                <form class="form-horizontal" method="post" action="{% url 'produccion:editarproduccion' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Articulo</label>
+                        <div class="col-sm-4">
+                           <select name="articulo_reg2" id="articulo_reg2" class="form-control">
+                            {% for art in art %}
+                                <option value={{art.id}} name="articulo_reg2">
+                                {{art.nombre}} {{art.capacidad}}L
+                                </option>
+                            {% endfor %}
+                            
+                            </select>
+                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Cantidad</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="cantidad2" id="cantidad2" pattern="[0-9]+" required="">
+                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Deposito</label>
+                        <div class="col-sm-4">
+                           <select name="deposito2" id="id_select" class="form-control">
+                            {% for dep in dep %}
+                                <option value={{dep.id}}>{{dep.id}}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                </div>
+                <div align="center">
+                    <button type="submit" class="btn btn-success" id="acambiar" name="editarproduccion">Editar</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--PopUp confirmacion eliminacion-->
+<div id="eliminarproduccion" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Eliminar Nueva produccion</h4>
+            </div>
+            <div class="modal-body">
+                <div align="center">
+                    <h4>¿Esta seguro?</h4><br>
+                    <form class="form-horizontal" method="post" action="{% url 'produccion:eliminarproduccion' %}">
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminarproduccion">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="eliminartodo" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Eliminar Nueva produccion</h4>
+            </div>
+            <div class="modal-body">
+                <div align="center">
+                    <h4>¿Esta seguro?</h4><br>
+                    <form class="form-horizontal" method="post" action="{% url 'produccion:eliminartodo' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminartodo">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="guardar" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Grabar Nueva Produccion</h4>
+            </div>
+            <div class="modal-body">
+                <div align="center">
+                    <h4>¿Esta seguro?</h4><br>
+                    <form class="form-horizontal" method="post" action="{% url 'produccion:guardar' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success" id="guardar" name="guardar">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4" align="right">
+            <button type="button" class="btn btn-success" onclick="location.href='{% url 'produccion:index2' %}';"><span class="glyphicon glyphicon-eye-open"></span> Consultar</button>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#agregarcopiaprod"><span class="glyphicon glyphicon-plus"></span> Agregar</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Articulo</h4></th>
+                <th><h4 class="text-center">Contenido</h4></th>
+                <th><h4 class="text-center">Capacidad</h4></th>
+                <th><h4 class="text-center">Cantidad</h4></th>
+                <th><h4 class="text-center">Deposito</h4></th>
+                <th><h4 class="text-center"></h4></th>
+            </tr>
+        </thead>
+        <tbody>
+           {% for prod in prod %}
+            <tr>
+                {% for art in art %}
+                {% if prod.articulo_reg2 == art.id %}
+                <td><h4 class="text-center text-capitalize">{{art.nombre}}</h4></td>
+                {% endif %}
+                {% endfor %}
+
+                {% for cont in cont %}
+                {% if cont.id == prod.tipo_reg2 %}
+                <td><h4 class="text-center">{{cont.nom_cont}}</h4></td>
+                {% endif %}
+                {% endfor %}
+                <td><h4 class="text-center">{{prod.capacidad2}}L</h4></td>
+                <td><h4 class="text-center">{{prod.cantidad2}}</h4></td>
+                
+                {% for dep in dep %}
+                {% if prod.deposito2 == dep.id %}
+                <th><h4 class="text-center">{{dep.ubicacion}}</h4></th>
+                {% endif %}
+                {% endfor %}
+                <td align="center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarproduccion" id="{{prod.id}}"
+                                onclick="document.getElementById('acambiar').value=(this).id;
+                                document.getElementById('articulo_reg2').value='{{prod.articulo_reg2}}'
+                                document.getElementById('cantidad2').value='{{prod.cantidad2}}'
+                                "><span class="glyphicon glyphicon-pencil"></span></button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eliminarproduccion" id="{{prod.id}}" onclick="document.getElementById('aeliminar').value=(this).id;"><span class="glyphicon glyphicon-remove"></button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="form-inline">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-6"></div>
+        <div class="col-sm-1" align="center">
+            <button type="button" class="btn btn-success" name="grabar" data-toggle="modal" data-target="#guardar"><span class="glyphicon glyphicon-save"></span> Grabar</button>
+        </div>
+        <!--ciclo -->
+        <div class="col-sm-1" align="center">
+            <button type="button" class="btn btn-danger" name="cancelar" data-toggle="modal" data-target="#eliminartodo">Cancelar</button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

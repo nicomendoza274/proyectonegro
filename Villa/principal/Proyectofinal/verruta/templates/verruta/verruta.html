@@ -1,0 +1,139 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Ruta | {% endblock %}
+
+{% block extrastyle %}
+
+    {% load staticfiles %}
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCC7C0WfLDs9jtP76Z7WdGrLFCbvR3mLYU"></script>
+    <script type="text/javascript" src="{% static 'js/ruta.js' %}"></script>
+    <script>
+    var cantidadpedidos = 0;
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+
+{% endblock %}
+
+{% block contenido %}
+<!--Popup para error de stock no disponible-->
+<div id="error_stockCamion" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error_stockCamion}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Confirmacion de venta-->
+<div id="registrarentrega" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Confirmar venta</h4>
+</div>
+<div class="modal-body">
+    <div align="center">
+        <h4>¿Esta seguro?</h4><br>
+        <form class="form-horizontal" method="post" action="{% url 'verruta:registrarventa' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success" id="aregistrar" name="idpedido">Confirmar</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<h1 class="text-center">Ruta del día</h1>
+<div class="col-md-6">
+    <h1 class="text-center">Stock del camion</h1>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Producto</h4></th>
+                <th><h4 class="text-center">Cantidad</h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in stock %}
+            {% if s.cantidad > 0 %}
+            <tr>
+                <td><h4 class="text-center">{{s.art_id.nombre}} {{s.art_id.envase}} {{s.art_id.contenido.nom_cont}} {{s.art_id.capacidad}}L</h4></td>
+                <td><h4 class="text-center">{{s.cantidad}}</h4></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+      </tbody><td>
+    </table>
+
+    <table class="table table-hover">
+        <h1 class="text-center">Pedidos a entregar       <span class="badge" id="cantidadpedidos"></span></h1>
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Cliente</h4></th>
+                <th><h4 class="text-center">DNI</h4></th>
+                <th><h4 class="text-center">Domicilio</h4></th>
+                <th><h4 class="text-center">Producto</h4></th>
+                <th><h4 class="text-center">Cantidad</h4></th>
+                <th><h4 class="text-center">Fecha de entrega</h4></th>
+                <th><h4 class="text-center">Forma de pago</h4></th>
+                <th><h4 class="text-center">Total</h4></th>
+                <th><h4 class="text-center"></h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in pedidos %}
+            <tr>
+                <script type="text/javascript">
+                    agregarMarcadorArray('{{pedido.direccion.latitud}}','{{pedido.direccion.longitud}}');
+                    cantidadpedidos++;
+                    document.getElementById('cantidadpedidos').innerHTML = cantidadpedidos;
+                </script>
+                <td><h4 class="text-center">{{pedido.cli_id.nombre}} {{pedido.cli_id.apellido}}</h4></td>
+                <td><h4 class="text-center">{{pedido.cli_id.dni}}</h4></td>
+                <td><h4 class="text-center">{{pedido.direccion.direccion}}</h4></td>
+                <td>
+                {% for det in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{det.art_id.nombre}} {{det.art_id.envase}} {{det.art_id.contenido.nom_cont}} {{det.art_id.capacidad}}L</h4>
+                {% endfor %}
+                </td>
+                <td>
+                {% for det in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{det.cantidad}}</h4>
+                {% endfor %}
+                </td>
+                <td><h4 class="text-center">{{pedido.fecha_entrega}}</h4></td>
+                <td><h4 class="text-center">{{pedido.formapago}}</h4></td>
+                <td><h4 class="text-center">${{pedido.total}}</h4></td>
+                <td align="center">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#registrarentrega" id="{{pedido.id}}" onclick="document.getElementById('aregistrar').value=(this).id;"><span class="glyphicon glyphicon-check"></span></button>
+                </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+</div>
+<div class="col-md-6">
+    <h4 class="text-right"><button id="calcularruta" type="button" class="btn btn-success" data-toggle="tooltip" data-placement="left" title="Calcular ruta !"><span class="glyphicon glyphicon-road"></span></button></h4>
+    <div class="container" style="width:auto;height:800px;">
+        <div id="map-canvas" style="width: 100%;height:100%;"></div>
+    </div>
+</div>
+
+{% if error_stockCamion %}
+<script type="text/javascript">
+    $('#error_stockCamion').modal('show');
+</script>
+{% endif %}
+
+{% endblock %}

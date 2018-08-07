@@ -1,0 +1,139 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %} Produccion | {% endblock %}
+{% block extrastyle%}
+
+    {% load staticfiles %}
+    <link href="{% static 'css/bootstrap-datepicker3.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+
+
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-9">
+            <h1 class="text-center">Produccion</h1>
+            <form method="post" action="{% url 'produccion:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" id="busqueda" name="busqueda" placeholder="Buscar" readonly="true">
+                        <!--<select name="select" id="id_select">-->
+                        <!--select name="tipo" id="id_select" class="form-control" onchange= "getIndex()"-->
+                        <select name="buscarpor" id="id_select" class="selectpicker" data-style="btn-primary" onchange="habilita()">
+                            <option value=0>Todos</label>
+                            <option value=1>Contenido</label>
+                            <option value=2>Articulo</label>      
+                        </select>
+                          
+                        <label class="control-label">Desde:</label>
+                            <!--div class="col-sm-3"-->
+                            <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+                                <input type="text" size="8" class="form-control" name="fecdesde">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+                        <label class="control-label">Hasta:</label>
+                            <!--div class="col-sm-3"-->
+                            <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy">
+                                <input type="text" size="8" class="form-control" name="fechasta">
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>     
+                        <label class="control-label">Deposito:</label>
+                        <select name="numdep" id="id_select" class="selectpicker" data-style="btn-primary">
+                                        <option value=0 name="numdep">
+                                    {% for dep in dep %}
+                                        <option value={{dep.id}} name="numdep">
+                                        {{dep.ubicacion}}
+                                        <!--</option-->
+                                    {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-default" onclick="location.href='{% url 'produccion:recargar2' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+            <button class="btn btn-success" onclick="location.href='{% url 'produccion:index' %}';"><span class="glyphicon glyphicon-plus"></span> Nueva Produccion</button>
+        </div>
+
+
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Articulo</h4></th>
+                <th><h4 class="text-center">Contenido</h4></th>
+                <th><h4 class="text-center">Capacidad</h4></th>
+                <th><h4 class="text-center">Cantidad</h4></th>
+                <th><h4 class="text-center">Deposito</h4></th>
+                <th><h4 class="text-center">Fecha</h4></th>
+
+            </tr>
+        </thead>
+        <tbody>
+        <!--{% if athlete_list %}
+                        {{ athlete_list|length }}
+        {% elif athlete_in_locker_room_list %}
+        {% else %}
+
+        {% endif %}-->
+           {% for prod in prod %}
+            <tr>
+                {% for art in art %}
+                {% if prod.articulo_reg_id == art.id %}
+                <td><h4 class="text-center text-capitalize">{{art.nombre}}</h4></td>
+                {% endif %}
+                {% endfor %}
+                
+                {% for cont in cont %}
+                {% if cont.id == prod.tipo_reg %}
+                <td><h4 class="text-center">{{cont.nom_cont}}</h4></td>
+                {% endif %}
+                {% endfor %}
+                <td><h4 class="text-center">{{prod.capacidad}}L</h4></td>
+                <td><h4 class="text-center">{{prod.cantidad}}</h4></td>
+                {% for dep in dep%}
+                {% if prod.deposito == dep.id %}
+                <th><h4 class="text-center">{{dep.ubicacion}}</h4></th>
+                {% endif %}
+                {% endfor %}
+                <td><h4 class="text-center">{{prod.fecha_reg}}</h4></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+<script>
+function getIndex() {
+    document.getElementById("Indice").innerHTML =
+    document.getElementById("id_select").selectedValue;
+}
+</script>
+
+<script>
+function habilita() {
+    var l = document.getElementById('id_select').value
+    if (l != '0')
+        {
+        document.getElementById('busqueda').removeAttribute('readonly', true);
+        }
+    else
+        { 
+        var h = document.getElementById('busqueda');
+        h.setAttribute('readonly', false);
+        }
+}
+</script>
+
+{% endblock %}

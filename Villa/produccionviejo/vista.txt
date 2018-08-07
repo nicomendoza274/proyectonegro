@@ -1,0 +1,105 @@
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.urls import reverse
+from principal.models import Detalle_Produccion
+from principal.models import Copia_DetProd
+from principal.models import Articulos
+from principal.models import Empleados
+from django.db.models import Q
+# Create your views here.
+
+def index(request):
+    prod = Copia_DetProd.objects.filter(estado_reg2=True)
+    art = Articulos.objects.filter()
+    emp = Empleados.objects.filter()
+    return render(request, "produccion/produccion.html" , {'prod': prod, 'art': art, 'emp': emp})
+
+
+def recargar(request):
+    return HttpResponseRedirect(reverse("produccion:index"))
+
+def crearcopiaprod(request):
+    try:
+        produccion = Copia_DetProd(cantidad2=request.POST['cantidad2'], capacidad2=request.POST['capacidad2'], articulo_reg2=request.POST['articulo_reg2'], tipo_reg2=request.POST['tipo_reg2'], empleado_reg2=request.POST['empleado_reg2'])
+    except(KeyError):
+        return render(request, "produccion/produccion.html", {'produccion': Copia_DetProd.objects.all(),})
+    else:
+        produccion.save()
+        return HttpResponseRedirect(reverse("produccion:index"))
+
+
+def editarproduccion(request):
+    try:
+        produccion = Copia_DetProd.objects.filter(pk=request.POST['editarproduccion'])
+        produccion.update(cantidad2=request.POST['cantidad2'], capacidad2=request.POST['capacidad2'], articulo_reg2=request.POST['articulo_reg2'], tipo_reg2=request.POST['tipo_reg2'])
+    except(KeyError):
+        return HttpResponseRedirect(reverse("produccion:index"))
+    else:
+        for i in produccion:
+            i.save()
+        return HttpResponseRedirect(reverse("produccion:index"))
+
+
+def eliminarproduccion(request):
+    try:
+        produccion = Copia_DetProd.objects.filter(pk=request.POST['eliminarproduccion'])
+        produccion.update(estado_reg2=False)
+    except(KeyError):
+        return HttpResponseRedirect(reverse("produccion:index"))
+    else:
+        for i in produccion:
+            i.save()
+        return HttpResponseRedirect(reverse("produccion:index"))
+
+def index2(request):
+    prod = Copia_DetProd.objects.filter(estado_reg2=True).order_by('-fecha_reg2')
+    art = Articulos.objects.filter(estado=True)
+    return render(request, "produccion/consultaproduccion.html" , {'prod': prod, 'art': art})
+
+
+def recargar2(request):
+    return HttpResponseRedirect(reverse("produccion:index2"))
+
+def buscar(request):
+    prod = Copia_DetProd.objects.filter(
+        Q(empleado_reg2=request.POST['busqueda'])| Q(articulo_reg2=request.POST['busqueda'])| Q(tipo_reg2=request.POST['busqueda'])
+    ).order_by('-fecha_reg2')
+    art = Articulos.objects.filter(estado=True)
+    return render(request, "produccion/consultaproduccion.html", {'prod': prod, 'art': art})
+
+
+def buscarempleado(request):
+    prod = Copia_DetProd.objects.filter(
+        Q(empleado_reg2=request.POST['busqueda'])
+    ).order_by('-fecha_reg2')
+    art = Articulos.objects.filter(estado=True)
+    return render(request, "produccion/consultaproduccion.html", {'prod': prod, 'art': art})
+
+def buscararticulo(request):
+    prod = Copia_DetProd.objects.filter(
+        Q(articulo_reg2=request.POST['busqueda'])
+    ).order_by('-fecha_reg2')
+    art = Articulos.objects.filter(estado=True)
+    return render(request, "produccion/consultaproduccion.html", {'prod': prod, 'art': art})
+
+def buscartipo(request):
+    prod = Copia_DetProd.objects.filter(
+        Q(tipo_reg2=request.POST['busqueda'])
+    ).order_by('-fecha_reg2')
+    art = Articulos.objects.filter(estado=True)
+    return render(request, "produccion/consultaproduccion.html", {'prod': prod, 'art': art})
+
+
+
+
+
+
+                buscatipo = prodr.tipo_reg 
+                if buscatipo = 1:
+                    buscarecetacont = Det_contenido.objects.filter(cont_id_id=1)
+                    for h in buscarecetacont:
+                        if h.
+                else:
+                    buscarecetacont = Det:Contenido.objects.filter(cont_id_id=2)
+                    for h in buscarecetacont:

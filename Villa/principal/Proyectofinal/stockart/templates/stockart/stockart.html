@@ -1,0 +1,99 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Stock Productos | {% endblock %}
+
+{% block contenido %}
+
+
+<!--Cuerpo principal-->
+
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><label>STOCK DE PRODUCTOS</label></div>
+
+        <!-- buscar-->
+        <div class="col-sm-6">
+
+            <form method="post" action="{% url 'stockart:busart' %}">
+                {% csrf_token %}
+                                            
+                <div class="form-group">
+                    <label>Seleccione deposito:</label>
+                    <select name="numdepo" id="id_select" class="form-control">
+                            <option value=0>Todos</option>
+                            {% for depo in dep %}
+                            <option value={{depo.id}}>{{depo.ubicacion}}</option>
+                            {% endfor %}                               
+                    </select>
+                </div>  
+                
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+
+                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+            </form>
+
+        </div> 
+        <div class="col-sm-1">
+            <button class="btn btn-default" onclick="location.href='{% url 'stockart:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+
+        <!-- prueba reporte-->
+        <div class="col-sm-1">
+            <button class="btn btn-default" onclick="location.href='{% url 'stockart:report' %}';"><span class="glyphicon glyphicon-file"></span></button>
+        </div>
+        <!-- prueba reporte-->
+
+        <div class="col-sm-2">
+            <button class="btn btn-success" onclick="location.href='{% url 'stock:index' %}';"><span class="glyphicon glyphicon-eye-open"></span> Ir a stock de insumos</button>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Nombre</h4></th>
+                <th><h4 class="text-center">Deposito</h4></th>
+                <th><h4 class="text-center">Existencia minima</h4></th>
+                <th><h4 class="text-center">Existencia actual</h4></th>
+                <th><h4 class="text-center">Estado</h4></th>
+                <th><h4 class="text-center"></h4></th> 
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for stock in stockarticulos %}
+            <tr>
+                {% for articulo in articulos %}
+                    {% if articulo.id == stock.art_id_id %}
+                        <td><h4 class="text-center text-capitalize">{{articulo.nombre}} {{articulo.capacidad}}L</h4></td>
+                        {% for dep in dep %}
+                        {% if stock.dep_id_id == dep.id %}
+                        <td><h4 class="text-center">{{dep.ubicacion}}</h4></td>
+                        {% endif %}
+                        {% endfor %}
+                        <td><h4 class="text-center">{{articulo.existenciamin}}</h4></td>
+                        <td><h4 class="text-center">{{stock.cantidad}}</h4></td>
+                        {% if articulo.estado == 1 %}
+                            <td><h4 class="text-center">En produccion</h4></td>
+                        {% else %}
+                            <td><h4 class="text-center">Discontinuado</h4></td>
+                        {% endif %}
+                
+                    {% endif %}
+                {% endfor %}
+
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

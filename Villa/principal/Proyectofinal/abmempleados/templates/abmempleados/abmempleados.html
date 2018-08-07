@@ -1,0 +1,340 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Empleados | {% endblock %}
+
+{% block extrastyle%}
+
+    {% load staticfiles %}
+    <link href="{% static 'css/bootstrap-datepicker3.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+
+<!-- PopUp para agregar empleados-->
+<div id="agregarempleado" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Agregar empleado</h4>
+</div>
+<div class="modal-body">
+<form id ="agregaemp" class="form-horizontal" method="post" action="{% url 'abmempleados:crearempleado' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="nombre" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Apellido</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="apellido" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Telefono</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="telefono" pattern="[0-9-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">DNI</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="dni" pattern="[1-9][0-9]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Email</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="email" pattern="[\d\w@.]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="direccion" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Fecha de nacimiento</label>
+        <div class="col-sm-4">
+        <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-end-date="0d">
+            <input type="text" class="form-control" name="fecnac" pattern="\d\d/\d\d/\d\d\d\d" required="">
+            <div class="input-group-addon">
+                <span class="glyphicon glyphicon-th"></span>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Cargo</label>
+        <div class="col-sm-4">
+            <select class="form-control" name="tipo" onchange="
+                    document.getElementById('tipo').value=$(this).find('option:selected').text();
+                ">
+                <option>Repartidor</option>
+                <option>Administrador</option>
+                <option>Oficinista</option>
+                <option>Recepcionista</option>
+                <option>Depósito</option>
+            </select>
+        </div>
+    </div>
+    <input type="hidden" class="form-control" id="tipo" name="tipo" value="Repartidor">
+    <div align="center">
+    <button type="submit" class="btn btn-success" name="empleado">Agregar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--PopUp para editar empleados-->
+<div id="editarempleado" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Editar empleado</h4>
+</div>
+<div class="modal-body">
+<form id="editaemp" class="form-horizontal" method="post" action="{% url 'abmempleados:editarempleado' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+            <input type="text" class="form-control" id="emp_nombre" name="nombre" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Apellido</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="emp_apellido" name="apellido" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Telefono</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="emp_telefono" name="telefono" pattern="[0-9-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">DNI</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="emp_dni" name="dni" pattern="[1-9][0-9]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Email</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="emp_email" name="email" pattern="[\d\w@.]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" id="emp_direccion" name="direccion" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Fecha de nacimiento</label>
+        <div class="col-sm-4">
+        <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-end-date="0d">
+        <input type="text" class="form-control" id="emp_fecnac" name="fecnac" pattern="\d\d/\d\d/\d\d\d\d" required="">
+            <div class="input-group-addon">
+                <span class="glyphicon glyphicon-th"></span>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Cargo</label>
+        <div class="col-sm-4">
+            <select class="form-control" id="listatipo" name="tipo" onchange="
+                    document.getElementById('emp_tipo').value=$(this).find('option:selected').text();
+                ">
+                <option value="Repartidor">Repartidor</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Oficinista">Oficinista</option>
+                <option value="Recepcionista">Recepcionista</option>
+                <option value="Depósito">Depósito</option>
+            </select>
+        </div>
+    </div>
+    <input type="hidden" class="form-control" id="emp_tipo" name="emp_tipo" onload="
+
+    ">
+    <div align="center">
+    <button type="submit" class="btn btn-success" id="acambiar" name="editarempleado">Editar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--Popup para error de duplicado-->
+<div id="errorDNI" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error_dni}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--PopUp confirmacion eliminacion-->
+<div id="eliminarempleado" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Eliminar empleado</h4>
+</div>
+<div class="modal-body">
+    <div align="center">
+        <h4>¿Esta seguro?</h4><br>
+        <form class="form-horizontal" method="post" action="{% url 'abmempleados:eliminarempleado' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminarempleado">Eliminar</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form method="post" action="{% url 'abmempleados:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="apellidobuscar" placeholder="Apellido">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="telefonobuscar" placeholder="Telefono">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="dnibuscar" placeholder="DNI">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+            </form>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-default" onclick="location.href='{% url 'abmempleados:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#agregarempleado"><span class="glyphicon glyphicon-plus"></span></button>
+        </div>
+    </div>
+</div>
+<h1 class="text-center">Listado de empleados</h1>
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><h4 class="text-center">Apellido</h4></th>
+            <th><h4 class="text-center">Nombre</h4></th>
+            <th><h4 class="text-center">Telefono</h4></th>
+            <th><h4 class="text-center">Dni</h4></th>
+            <th><h4 class="text-center">Email</h4></th>
+            <th><h4 class="text-center">Domicilio</h4></th>
+            <th><h4 class="text-center">Fecha de nacimiento</h4></th>
+            <th><h4 class="text-center">Fecha de ingreso</h4></th>
+            <th><h4 class="text-center">Cargo</h4></th>
+            <th><h4 class="text-center"></h4></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for empleado in empleados %}
+        <tr>
+            <td><h4 class="text-center">{{empleado.apellido}}</h4></td>
+            <td><h4 class="text-center">{{empleado.nombre}}</h4></td>
+            <td><h4 class="text-center">{{empleado.telefono}}</h4></td>
+            <td><h4 class="text-center">{{empleado.dni}}</h4></td>
+            <td><h4 class="text-center">{{empleado.correo}}</h4></td>
+            <td><h4 class="text-center">{{empleado.direccion}}</h4></td>
+            <td><h4 class="text-center">{{empleado.fecNac}}</h4></td>
+            <td><h4 class="text-center">{{empleado.fecIng}}</h4></td>
+            <td><h4 class="text-center">{{empleado.tipo}}</h4></td>
+            <td align="center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarempleado" id="{{empleado.id}}"
+                            onclick="document.getElementById('acambiar').value=(this).id;
+                            document.getElementById('emp_nombre').value='{{empleado.nombre}}';
+                            document.getElementById('emp_apellido').value='{{empleado.apellido}}';
+                            document.getElementById('emp_telefono').value='{{empleado.telefono}}';
+                            document.getElementById('emp_dni').value='{{empleado.dni}}';
+                            document.getElementById('emp_direccion').value='{{empleado.direccion}}';
+                            document.getElementById('emp_email').value='{{empleado.correo}}';
+                            document.getElementById('emp_fecnac').value='{{empleado.fecNac|date:'d/m/Y'}}';
+                            document.getElementById('emp_tipo').value='{{empleado.tipo}}'
+                            $('#listatipo').val('{{empleado.tipo}}').trigger('change');
+                            ">
+                        <span class="glyphicon glyphicon-pencil"></span></button>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eliminarempleado" id="{{empleado.id}}" onclick="document.getElementById('aeliminar').value=(this).id;"><span class="glyphicon glyphicon-remove"></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% if error_dni %}
+<script type="text/javascript">
+    $('#errorDNI').modal('show');
+</script>
+{% endif %}
+
+<script type="text/javascript">
+//valida 
+$('#agregaemp input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+<script type="text/javascript">
+//valida 
+$('#editaemp input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+{% endblock %}

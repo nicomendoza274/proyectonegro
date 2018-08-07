@@ -1,0 +1,320 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Insumos | {% endblock %}
+
+{% block contenido %}
+
+<script>
+  function tag(id) 
+    {
+     return document.getElementById(id);
+    }
+
+    function habilita() 
+    {
+        var l = document.getElementById('id_select').value
+        if (l == 'envase'){
+            document.getElementById('otro').removeAttribute('readonly', false);
+            tag('ingredientes').style.display = "none";
+            tag('env').style.display = "inline";
+            tag('ingredientes').disabled = true;
+            tag('env').disabled = false;
+            tag('eti').style.display = "none"
+        }
+        else if(l=='etiqueta'){
+            document.getElementById('otro').removeAttribute('readonly', false);
+            tag('ingredientes').style.display = "none";
+            tag('env').style.display = "none";
+            tag('eti').value = "Etiqueta"
+            tag('eti').style.display = "inline"
+            tag('ingredientes').disabled = true;
+            tag('env').disabled = true;
+        }else{
+            var h = document.getElementById('otro');
+            h.setAttribute('readonly', true);
+            tag('ingredientes').style.display = "inline";
+            tag('env').style.display = "none"
+            tag('ingredientes').disabled = false;
+            tag('env').disabled = true;
+            tag('eti').style.display = "none"
+        }
+    }
+</script>
+
+
+<!-- PopUp para agregar insumos-->
+<div id="agregarinsumo" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Agregar Insumo</h4>
+            </div>
+            <div class="modal-body">
+                <form id="agins" class="form-horizontal" method="post" action="{% url 'abminsumos:crearinsumo' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Codigo</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="codinsumo" pattern="[0-9.]+" required="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Tipo</label>
+                    <div class="col-sm-4">
+                        <select name="tipo" id="id_select" class="form-control" onchange="habilita()">
+                            <option value="contenido">Ingrediente</option>
+                            <option value="etiqueta">Etiqueta</option>
+                            <option value="envase">Envase</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Nombre</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="eti" disabled id="eti" style="display: none;" pattern="[A-Za-z0-9 ]+" required="">
+                        <select name="env" id="env" class="form-control" style="display: none;">
+                            <option value="bidon">Bidon</option>
+                            <option value="botella">Botella</option>
+                            <option value="sifon">Sifon</option>
+                        </select>
+                        <select name="ingredientes" id="ingredientes" class="form-control">
+                            <option value="agua mineral">Agua Mineral</option>
+                            <option value="gas carbónico">Gas Carbónico</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Capacidad (litros)</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="otro" id="otro" pattern="([1-9]\d*(\.\d{1,2})?|0\.[1-9]{1,2})" readonly="true">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Descripcion</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="descripcion" pattern="[A-Za-zñÑ,. ]+" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Existencia minima</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" name="existenciamin" pattern="[0-9]+" required="">
+                    </div>
+                </div>
+
+                <div align="center">
+                    <button type="submit" class="btn btn-success" name="insumo">Agregar</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Popup para error de codigo repetido-->
+<div id="error" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Popup para error de insumo existente-->
+<div id="error_insumoExistente" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error_insumoExistente}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--PopUp para editar insumos-->
+<div id="editarinsumo" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Editar Insumo</h4>
+            </div>
+            <div class="modal-body">
+                <form id="edins" class="form-horizontal" method="post" action="{% url 'abminsumos:editarinsumo' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Descripcion</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="ins_descripcion" name="descripcion" pattern="[A-Za-z,. ]+" required="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Existencia minima</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="ins_existenciamin" name="existenciamin" pattern="[0-9]+" required="">
+                    </div>
+                </div>
+                <div align="center">
+                    <button type="submit" class="btn btn-success" id="acambiar" name="editarinsumo">Editar</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--PopUp confirmacion eliminacion-->
+<div id="eliminarinsumo" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Eliminar Insumo</h4>
+            </div>
+            <div class="modal-body">
+                <div align="center">
+                    <h4>¿Esta seguro?</h4><br>
+                    <form class="form-horizontal" method="post" action="{% url 'abminsumos:eliminarinsumo' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminarinsumo">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form method="post" action="{% url 'abminsumos:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="tipobuscar" placeholder="Tipo">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+            </form>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-default" onclick="location.href='{% url 'abminsumos:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#agregarinsumo"><span class="glyphicon glyphicon-plus"></span></button>
+        </div>
+    </div>
+</div>
+<h1 class="text-center">Listado de Insumos</h1>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><h4 class="text-center">Codigo</h4></th>
+                <th><h4 class="text-center">Nombre</h4></th>
+                <th><h4 class="text-center">Descripcion</h4></th>
+                <th><h4 class="text-center">Existencia minima</h4></th>
+                <th><h4 class="text-center">Tipo</h4></th>
+                <th><h4 class="text-center"></h4></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for insumo in insumos %}
+            <tr>
+                <td><h4 class="text-center text-capitalize">{{insumo.codigo}}</h4></td>
+                {% if insumo.tipo == 'envase' or insumo.tipo == 'etiqueta' %}
+                <td><h4 class="text-center text-capitalize">{{insumo.nombre}} {{insumo.otro}}L</h4></td>
+                {% else %}
+                <td><h4 class="text-center text-capitalize">{{insumo.nombre}}</h4></td>
+                {% endif %}
+                <td><h4 class="text-center text-capitalize">{{insumo.descripcion}}</h4></td>
+                <td><h4 class="text-center">{{insumo.existenciamin}}</h4></td>
+                <td><h4 class="text-center text-capitalize">{{insumo.tipo}}</h4></td>
+                <td align="center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarinsumo" id="{{insumo.id}}"
+                                onclick="document.getElementById('acambiar').value=(this).id;
+                                document.getElementById('ins_descripcion').value='{{insumo.descripcion}}';
+                                document.getElementById('ins_existenciamin').value='{{insumo.existenciamin}}';
+                                "><span class="glyphicon glyphicon-pencil"></span></button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eliminarinsumo" id="{{insumo.id}}" onclick="document.getElementById('aeliminar').value=(this).id;"><span class="glyphicon glyphicon-remove"></button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+//valida agregar proveedor
+$('#agins input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+<script type="text/javascript">
+//valida agregar proveedor
+$('#edins input[type=text]').on('change invalid', function() {
+    var textfield = $(this).get(0);
+    
+    // 'setCustomValidity not only sets the message, but also marks
+    // the field as invalid. In order to see whether the field really is
+    // invalid, we have to remove the message first
+    textfield.setCustomValidity('');
+    
+    if (!textfield.validity.valid) {
+      textfield.setCustomValidity('Dato inválido');  
+    }   
+
+});
+</script>
+
+{% if error %}
+<script type="text/javascript">
+    $('#error').modal('show');
+</script>
+{% endif %}
+
+{% if error_insumoExistente %}
+<script type="text/javascript">
+    $('#error_insumoExistente').modal('show');
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Asignar pedidos | {% endblock %}
+
+{% block contenido %}
+
+<!--PopUp confirmacion asignacion-->
+<div id="asignar" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Asignar empleado</h4>
+</div>
+<div class="modal-body">
+    <div align="center">
+        <h4>¿Esta seguro?</h4><br>
+        <form class="form-horizontal" method="post" action="{% url 'asignarpedidos:asignar' %}">
+            {% csrf_token %}
+            <input type="hidden" class="form-control" id="idempleado" name="idempleado" value="0">
+            <button type="submit" class="btn btn-success" id="aasignar" name="asignarempleado">Asignar</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form method="post" action="{% url 'abmpedidos:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" name="nombrebuscar" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="apellidobuscar" placeholder="Apellido">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="dnibuscar" placeholder="DNI">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+            </form>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-default" onclick="location.href='#';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+    </div>
+</div>
+<h1 class="text-center">Pedidos sin asignar</h1>
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><h4 class="text-center">Cliente</h4></th>
+            <th><h4 class="text-center">DNI</h4></th>
+            <th><h4 class="text-center">Domicilio</h4></th>
+            <th><h4 class="text-center">Producto</h4></th>
+            <th><h4 class="text-center">Cantidad</h4></th>
+            <th><h4 class="text-center">Forma de pago</h4></th>
+            <th><h4 class="text-center">Fecha de entrega</h4></th>
+            <th><h4 class="text-center">Empleado</h4></th>
+            <th><h4 class="text-center"></h4></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pedido in pedidos %}
+            <tr>
+                <td><h4 class="text-center">{{pedido.cli_id.apellido}}, {{pedido.cli_id.nombre}}</h4></td>
+                <td><h4 class="text-center">{{pedido.cli_id.dni}}</h4></td>
+                <td><h4 class="text-center">{{pedido.direccion.direccion}}</h4></td>
+                <td>
+                {% for detalle in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{detalle.art_id.nombre}}</h4>
+                {% endfor %}
+                </td>
+                <td>
+                {% for detalle in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{detalle.cantidad}}</h4>
+                {% endfor %}
+                </td>
+                <td><h4 class="text-center">{{pedido.formapago}}</h4></td>
+                <td><h4 class="text-center">{{pedido.fecha_entrega}}</h4></td>
+                <td><h4 class="text-center">
+                        <select class="form-control" id="empleado" name="empleado">
+                            {% for empleado in empleados%}
+                            {% if empleado.tipo == 'Repartidor' %}
+                            <option value="{{empleado.id}}">{{empleado.apellido}}, {{empleado.nombre}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                </h4></td>
+                <td align="center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#asignar" id="{{pedido.id}}" onclick="
+                            document.getElementById('aasignar').value=(this).id;
+                            document.getElementById('idempleado').value=$(empleado).val();
+                        "><span class="glyphicon glyphicon-ok"></span></button>
+                  </div>
+              </td>
+            </tr>
+        {% endfor %}
+  </tbody>
+</table>
+</div>
+<h1 class="text-center">Pedidos atrasados sin asignar</h1>
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><h4 class="text-center">Cliente</h4></th>
+            <th><h4 class="text-center">DNI</h4></th>
+            <th><h4 class="text-center">Domicilio</h4></th>
+            <th><h4 class="text-center">Producto</h4></th>
+            <th><h4 class="text-center">Cantidad</h4></th>
+            <th><h4 class="text-center">Forma de pago</h4></th>
+            <th><h4 class="text-center">Fecha de entrega</h4></th>
+            <th><h4 class="text-center">Empleado</h4></th>
+            <th><h4 class="text-center"></h4></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pedido in pedidosa %}
+            <tr>
+                <td><h4 class="text-center">{{pedido.cli_id.apellido}}, {{pedido.cli_id.nombre}}</h4></td>
+                <td><h4 class="text-center">{{pedido.cli_id.dni}}</h4></td>
+                <td><h4 class="text-center">{{pedido.direccion.direccion}}</h4></td>
+                <td>
+                {% for detalle in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{detalle.art_id.nombre}}</h4>
+                {% endfor %}
+                </td>
+                <td>
+                {% for detalle in pedido.detalle_pedido_set.all %}
+                <h4 class="text-center">{{detalle.cantidad}}</h4>
+                {% endfor %}
+                </td>
+                <td><h4 class="text-center">{{pedido.formapago}}</h4></td>
+                <td><h4 class="text-center">{{pedido.fecha_entrega}}</h4></td>
+                <td><h4 class="text-center">
+                        <select class="form-control" id="empleado" name="empleado">
+                            {% for empleado in empleados%}
+                            {% if empleado.tipo == 'Repartidor' %}
+                            <option value="{{empleado.id}}">{{empleado.apellido}}, {{empleado.nombre}}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                </h4></td>
+                <td align="center">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#asignar" id="{{pedido.id}}" onclick="
+                            document.getElementById('aasignar').value=(this).id;
+                            document.getElementById('idempleado').value=$(empleado).val();
+                        "><span class="glyphicon glyphicon-ok"></span></button>
+                  </div>
+              </td>
+            </tr>
+        {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,477 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Pedidos | {% endblock %}
+
+{% block extrastyle%}
+
+    {% load staticfiles %}
+    <link href="{% static 'css/bootstrap-datepicker3.css' %}" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+
+{% endblock %}
+
+{% block contenido %}
+
+<!-- PopUp para agregar pedidos-->
+
+<div id="agregarpedido2" class="modal fade" role="dialog" xmlns="http://www.w3.org/1999/html">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Agregar pedido</h4>
+</div>
+<div class="modal-body">
+  <form class="form-horizontal" method="post" id="formCrear" action="{% url 'abmpedidos:crearpedido' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">DNI del Cliente</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" name="dni" id="dni_abuscar2" pattern="[0-9]+" required oninvalid="setCustomValidity('DNI incorrecto')" onchange="setCustomValidity('');validarDNI()"></input>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+          <input id="agregarNombre" type="text" class="form-control" name="nombre" readonly tabIndex="-1" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Apellido</label>
+        <div class="col-sm-4">
+          <input id="agregarApellido" type="text" class="form-control" name="apellido" readonly tabIndex="-1" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-6">
+              <select class="form-control" name="domicilio" id="agregarDomicilios" required>
+                <option selected disabled hidden value="">Seleccione un domicilio...</option>
+              </select>
+        </div>
+    </div>
+    <div class="form-group">
+            <div class="col-sm-4">
+              <div align="center">
+                <label class="control-label">Producto</label>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div align="center">
+                <label class="control-label">Tipo</label>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div align="center">
+                <label class="control-label">Cantidad</label>
+              </div>
+            </div>
+            <div class="col-sm-4 columna_productos" id="columna_productos">
+              <select class="form-control" name="prod_nombre1" id="prod_nombre1" required onchange="buscarTipos(this)">
+                  <option selected disabled hidden value="">Seleccione un producto...</option>
+                  {%for articulo in articulos_nombres %}
+                  <option>{{articulo}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+            <div class="col-sm-4" id="columna_tipos">
+              <select class="form-control" name="prod_tipo1" id="prod_tipo1" required onchange="modificar_total();">
+                <!--<option selected disabled hidden value="">Seleccione un tipo...</option>-->
+              </select>
+             </div>
+             <div class="col-sm-2" id="columna_cantidades">
+               <input type="text" class="form-control" id="prod_cantidad1" name="prod_cantidad1" pattern="[1-9]\d*" required oninput="modificar_total();">
+             </div>
+             <div class="col-sm-2" id="columna_eliminar">
+               <button  type="button" id="prod_eliminar1" style="height: 34px; visibility: hidden" onclick="eliminarItem(this)">Eliminar</button>
+             </div>
+    </div>
+    <div class="form-group">
+          <div align="center">
+            <input type="button" id="agregar_item" value="Agregar item" onclick="agregarItem()"/>
+          </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Total: </label>
+        <div class="col-sm-1">
+          <label class="control-label">$</label>
+        </div>
+        <div class="col-sm-4" align="left">
+          <label id="precio_total" class="control-label">0</label>
+          <input id="precio_total_input" name="precio_total" value="0" type="hidden">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Forma de pago</label>
+        <div class="col-sm-4">
+          <select class="form-control" name="forma_pago" id="forma_pago" required>
+            <option selected disabled hidden value="">Seleccione una forma de pago...</option>
+            <option>Efectivo</option>
+          </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+          <label class="control-label col-sm-4">Fecha de entrega</label>
+          <div class="col-sm-4">
+          <div class="input-group date" data-provide="datepicker" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
+              <input type="text" class="form-control" name="fecha_entrega" pattern="\d\d/\d\d/\d\d\d\d" required="">
+              <div class="input-group-addon">
+                  <span class="glyphicon glyphicon-th"></span>
+              </div>
+          </div>
+          </div>
+        </div>
+    </div>
+    <div align="center">
+    <button type="submit" class="btn btn-success" name="pedido">Agregar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--PopUp para editar pedidos-->
+<div id="editarpedido" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Editar pedido</h4>
+</div>
+<div class="modal-body">
+<form class="form-horizontal" method="post" action="{% url 'abmpedidos:editarpedido' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-4">Domicilio</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="direccion" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Producto</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="articulo" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Cantidad</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="cantidad" pattern="[A-Za-z0-9 ,.-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Nombre</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="nombre" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Apellido</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="apellido" pattern="[A-Za-z ]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Forma de pago</label>
+        <div class="col-sm-4">
+        <input type="text" class="form-control" name="formapago" pattern="[0-9-]+" required="">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-4">Fecha de entrega</label>
+        <div class="col-sm-4">
+        <div class="input-group date" data-provide="datepicker">
+            <input type="text" class="form-control" name="fecent">
+            <div class="input-group-addon">
+                <span class="glyphicon glyphicon-th"></span>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div align="center">
+    <button type="submit" class="btn btn-success" id="acambiar" name="editarpedido">Editar</button>
+    </div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!--PopUp confirmacion eliminacion-->
+<div id="eliminarpedido" class="modal fade" role="dialog">
+<div class="modal-dialog">
+<!-- Contenido-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Eliminar pedido</h4>
+</div>
+<div class="modal-body">
+    <div align="center">
+        <h4>¿Esta seguro?</h4><br>
+        <form class="form-horizontal" method="post" action="{% url 'abmpedidos:eliminarpedido' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" id="aeliminar" name="eliminarpedido">Eliminar</button>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!--Cuerpo principal-->
+<div class="row">
+    <div class="form-inline">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form method="post" action="{% url 'abmpedidos:buscar' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" class="form-control" name="dnibuscar" placeholder="DNI">
+                </div>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+            </form>
+        </div>
+        <div class="col-sm-2">
+            <button class="btn btn-default" onclick="location.href='{% url 'abmpedidos:recargar' %}';"><span class="glyphicon glyphicon-refresh"></span></button>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#agregarpedido2"><span class="glyphicon glyphicon-plus"></span></button>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-11">
+            <h1 class="text-center">Listado de pedidos pendientes</h1>
+        </div>
+    </div>
+</div>
+<div class="table-responsive">
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th><h4 class="text-center">Cliente</h4></th>
+            <th><h4 class="text-center">DNI</h4></th>
+            <th><h4 class="text-center">Producto</h4></th>
+            <th><h4 class="text-center">Cantidad</h4></th>
+            <th><h4 class="text-center">Total</h4></th>
+            <th><h4 class="text-center">Forma de pago</h4></th>
+            <th><h4 class="text-center">Fecha de ingreso</h4></th>
+            <th><h4 class="text-center">Fecha de entrega</h4></th>
+            <th><h4 class="text-center">Repartidor</h4></th>
+            <th><h4 class="text-center">Estado del Pedido</h4></th>
+            <th><h4 class="text-center"><span class="label label-warning hide" id="alertaAsignacion">Hay pedidos sin asignar</span></h4></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+            <td>
+            <h4 class="text-center">{{pedido.cli_id.nombre}} {{pedido.cli_id.apellido}}</h4>
+            </td>
+            <td>
+            <h4 class="text-center">{{pedido.cli_id.dni}}</h4></td>
+            </td>
+            <td>
+            {% for det in pedido.detalle_pedido_set.all %}
+            <h4 class="text-center">{{det.art_id.nombre}} {{det.art_id.envase}} {{det.art_id.contenido_id.nom_cont}} {{det.art_id.capacidad}}</h4>
+            {% endfor %}
+            </td>
+            <td>
+            {% for det in pedido.detalle_pedido_set.all %}
+            <h4 class="text-center">{{det.cantidad}}</h4>
+            {% endfor %}
+            </td>
+            <td><h4 class="text-center">$ {{pedido.total}}</h4></td>
+            <td><h4 class="text-center">{{pedido.formapago}}</h4></td>
+            <td><h4 class="text-center">{{pedido.fecha}}</h4></td>
+            <td><h4 class="text-center">{{pedido.fecha_entrega}}</h4></td>
+            <td><h4 class="text-center">{% if pedido.rep_id_id == 0 %}
+                Sin asignar
+                <script>
+                    document.getElementById('alertaAsignacion').className = 'label label-warning';
+                </script>
+            {% else %}
+                {{pedido.rep_id.apellido}}, {{pedido.rep_id.nombre}}
+            {% endif %}
+            </h4></td>
+            <td><h4 class="text-center">
+                {% if pedido.rep_id.enruta == 1 %}
+                  En ruta
+                {% elif pedido.rep_id.enruta == 0 %}
+                  En sucursal
+                {% else %}
+                  -
+                {% endif %}
+            </h4></td>
+            <td align="center">
+                <div class="btn-group">
+                  <!--
+                  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editarpedido" id=""
+                          onclick="document.getElementById('acambiar').value=(this).id;
+                          document.getElementById('dom_direccion').value='';
+                          document.getElementById('art_nombre').value='';
+                          document.getElementById('det_cantidad').value='';
+                          document.getElementById('ped_formapago').value='';
+                          document.getElementById('ped_fechaentrega').value='';">
+                      <span class="glyphicon glyphicon-pencil"></span></button>
+                  -->
+                  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#eliminarpedido" id="{{pedido.id}}" onclick="document.getElementById('aeliminar').value=(this).id;"><span class="glyphicon glyphicon-remove"></button>
+              </div>
+          </td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<script>
+$(".dropdown-menu").on("click", "li a", function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  $(this).parents('.btn-group').find('.dropdown-toggle').val(selText);
+});
+</script>
+
+<script>
+  function modificar_total(){
+    var data_prods = $('#formCrear').serialize();
+    $.ajax({
+      type: 'get',
+      url: "{% url 'abmpedidos:modificartotal' %}",
+      data: data_prods,
+      success: function(dataofconfirm) {
+        $('#precio_total').text(dataofconfirm['precio']);
+        $('#precio_total_input').val(dataofconfirm['precio']);
+        },
+      error: function() {
+        alert("Error en la validacion");
+      }
+    });
+    return false;
+  };
+</script>
+
+<script>
+function buscarTipos(e) {
+  count=e.id.slice(-1);
+  tipos=document.getElementById('prod_tipo' + count);
+  $.ajax({
+    url: "{% url 'abmpedidos:buscartipos' %}",
+    data: {'producto_nombre':e.options[e.selectedIndex].text},
+    success: function(data){
+      $('#prod_tipo' + count).empty();
+      $('#prod_tipo' + count).append('<option selected disabled hidden value="">Seleccione un tipo...</option>');
+      var obj = JSON.parse(data['producto_tipos']);
+      for (var i=0; i<obj.length; i++) {
+        var opt = document.createElement('option');
+        opt.innerHTML = obj[i] + 'L';
+        tipos.appendChild(opt);
+      }
+    },
+    error: function (data) {
+      alert("Error en la busqueda");
+    }
+  });
+};
+</script>
+
+<script>
+function validarDNI() {
+    $.ajax({
+      type: 'get',
+      url: "{% url 'abmpedidos:validardni' %}",
+      data: {'dni_abuscar':$('#dni_abuscar2').val()},
+      success: function (data) {
+        if (data['cliente_404'] == 'Cliente no encontrado'){
+          $('#agregarNombre').val(data['cliente_404']);
+          $('#agregarApellido').val('');
+          $('#agregarDomicilios').empty();
+          $('#agregarDomicilios').append('<option selected disabled hidden value="">Seleccione un domicilio...</option>');
+        }else {
+          $('#agregarNombre').val(data['cliente_404']);
+          $('#agregarDomicilios').empty();
+          $('agregarDomicilios').append('<option selected disabled hidden value="">Seleccione un domicilio...</option>');
+          $('#agregarNombre').val(data['cliente_nombre']);
+          $('#agregarApellido').val(data['cliente_apellido']);
+          var obj = JSON.parse(data['cliente_domicilios']);
+          var doms = document.getElementById('agregarDomicilios');
+          for (var i=0; i<obj.length; i++) {
+            var opt = document.createElement('option');
+            opt.innerHTML = obj[i];
+            doms.appendChild(opt);
+          }
+        }
+      },
+      error: function (data) {
+        alert("Error en la validacion");
+      }
+    });
+    return false;
+  };
+</script>
+
+<script>
+    var nombre_default=$('#prod_nombre1').clone();
+    var tipo_default=$('#prod_tipo1').clone();
+    var cantidad_default=$('#prod_cantidad1').clone();
+    var eliminar_default=$('#prod_eliminar1').clone();
+
+    function agregarItem(){
+      try{
+        var count=$(".columna_productos").find("select:last").attr('id').slice(-1);
+        var newCount=parseInt(count)+1;
+        var nombre=$('#prod_nombre'+count).clone();
+        nombre.attr('id','prod_nombre'+newCount);
+        nombre.attr('name','prod_nombre'+newCount);
+        $('#columna_productos').append(nombre);
+
+        var tipo=$('#prod_tipo'+count).clone();
+        tipo.attr('id','prod_tipo'+newCount);
+        tipo.attr('name','prod_tipo'+newCount);
+        tipo.empty();
+        $('#columna_tipos').append(tipo);
+
+        var cantidad=$('#prod_cantidad'+count).clone();
+        cantidad.attr('id','prod_cantidad'+newCount);
+        cantidad.attr('name','prod_cantidad'+newCount);
+        cantidad.val('');
+        $('#columna_cantidades').append(cantidad);
+
+        var eliminar=$('#prod_eliminar'+count).clone();
+        eliminar.attr('id','prod_eliminar'+newCount);
+        $('#columna_eliminar').append(eliminar);
+        eliminar.css('visibility', 'visible');
+      }catch(err){
+        $('#columna_productos').append(nombre_default);
+        $('#columna_tipos').append(tipo_default);
+        $('#columna_cantidades').append(cantidad_default);
+        $('#columna_eliminar').append(eliminar_default);
+      };
+    };
+</script>
+
+<script>
+  function eliminarItem(e){
+    var count=$(e).attr('id').slice(-1);
+    $('#prod_nombre'+count).remove();
+    $('#prod_tipo'+count).remove();
+    $('#prod_cantidad'+count).remove();
+    $('#prod_eliminar'+count).remove();
+    modificar_total();
+  };
+</script>
+
+<script>
+  $("#formCrear").submit(function(event){
+    if(!$('#agregarApellido').val()){
+      alert('Algunos campos no son correctos.');
+      event.preventDefault();
+    }
+  });
+</script>
+
+
+{% endblock %}

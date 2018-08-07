@@ -1,0 +1,177 @@
+{% extends 'principal/principal.html' %}
+
+{% block titulo %}Camiones | {% endblock %}
+
+{% block contenido %}
+<!--Popup para articulos no disponibles en depositos-->
+<div id="error" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Contenido-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{error}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Cuerpo principal-->
+<div class="col-sm-12">
+    <div class="col-sm-11">
+        <h1 class="text-center">Descarga de camiones</h1>
+    </div>
+    <div class="col-sm-1">
+        <button class="btn btn-default" onclick="location.href='{% url 'descargarcamion:report' %}';"><span class="glyphicon glyphicon-file"></span></button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+        <table class="table table-hover" id="tabla">
+            <thead>
+                <tr>
+                    <th><h4 class="text-center">Nombre</h4></th>
+                    <th><h4 class="text-center">DNI</h4></th>
+                    <th><h4 class="text-center">Producto</h4></th>
+                    <th><h4 class="text-center">Stock</h4></th>
+                    <th><h4 class="text-center">
+                        <div class="form-inline">
+                            <select class="form-control" name="deposito" id="deposito" required onchange="">
+                                <option selected disabled hidden value="">Deposito</option>
+                                {%for deposito in depositos %}
+                                    <option>{{deposito.ubicacion}}</option>
+                                {%endfor%}
+                            </select>
+                            <button class="btn btn-success" onclick="seleccion();"><span class="glyphicon glyphicon-share-alt" id="glyphSelect"></span></button>
+                            <span class="label label-warning hide" id="alertaAsignacion">Hay filas sin deposito</span>
+                        </div>
+                    </h4>
+                    </th>
+                    <th><h4 class="text-center"><input type="checkbox" id="select_all"> Seleccionar todo</h4></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for camion in camiones %}
+                <tr id="tr{{camion.id}}">
+                    <td><h4 class="text-center">{{camion.emp_id.apellido}}, {{camion.emp_id.nombre}}</h4></td>
+                    <td><h4 class="text-center">{{camion.emp_id.dni}}</h4></td>
+                    <td><h4 class="text-center">{{camion.art_id.nombre}} {{camion.art_id.envase}} {{camion.art_id.contenido.nom_cont}} {{camion.art_id.capacidad}}L</h4></td>
+                    <td><h4 class="text-center">{{camion.cantidad}}</h4></td>
+                    <td><h4 id="deposito{{camion.id}}" class="text-center"></h4></td>
+                    <td align="center"><input class="checkbox" type="checkbox" name="check[]" value="{{camion.id}}" onclick="
+                        //Si se tilda, agrega, sino se destilda
+                        if(this.checked == true){
+                            $('#aenviar').append('<div class=&quot;form-group&quot;><input type=&quot;text&quot; class=&quot;form-control&quot; name=&quot;inpu&quot; id=&quot;{{camion.id}}&quot; value=&quot;{{camion.emp_id_id}}-{{camion.art_id_id}}-{{camion.cantidad}}-&quot;></div>');
+                            document.getElementById(&quot;tr{{camion.id}}&quot;).className = 'danger';
+                            document.getElementById(&quot;deposito{{camion.id}}&quot;).className = 'text-center cambiar';
+                        }else{
+                            var elim = document.getElementById(&quot;{{camion.id}}&quot;);
+                            elim.remove();
+                            document.getElementById(&quot;tr{{camion.id}}&quot;).className = '';
+                            depositoActual = document.getElementById(&quot;deposito{{camion.id}}&quot;);
+                            depositoActual.className = 'text-center';
+                            depositoActual.innerHTML = '';
+                            var cantidad = $('.danger').length;
+                            if (cantidad == 0){
+                                document.getElementById('alertaAsignacion').className = &quot;label label-warning hide&quot;;
+                            }
+                        }
+                    "></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+<div class="col-md-12">
+    <h4 class="text-right">
+        <form class="form-horizontal" method="post" id="cargar" action="{% url 'descargarcamion:descargar' %}" onsubmit="return todoAsignado();">
+        {% csrf_token %}
+            <button type="submit" class="btn btn-success" id="enviar">Asignar</button>
+            <div id="aenviar"></div>
+        </form>
+    </h4>
+</div>
+<script>
+    function todoAsignado(){
+    var cantidad = $('.danger').length;
+    if(cantidad > 0){
+        document.getElementById('alertaAsignacion').className = "label label-warning";
+        return false;
+    }else{
+        return true;
+    }
+    }
+</script>
+<script>
+//select all checkboxes
+$("#select_all").change(function(){  //"select all" change
+    var status = this.checked; // "select all" checked status
+    if (status){
+        $('.checkbox').each(function(){ //iterate all listed checkbox items
+            if (!(this.checked)){
+                this.checked = status; //change ".checkbox" checked status
+                if(this.closest('tr').className != "success"){
+                    this.onclick();
+                }
+            }
+        });
+    } else {
+        $('.checkbox').each(function(){ //iterate all listed checkbox items
+            this.checked = status; //change ".checkbox" checked status
+                this.onclick();
+        });
+    }
+});
+
+$('.checkbox').change(function(){ //".checkbox" change
+    //uncheck "select all", if one of the listed checkbox item is unchecked
+    if(this.checked == false){ //if this item is unchecked
+        $("#select_all")[0].checked = false; //change "select all" checked status to false
+    }
+    //check "select all" if all checkbox items are checked
+    if ($('.checkbox:checked').length == $('.checkbox').length ){
+        $("#select_all")[0].checked = true; //change "select all" checked status to true
+    }
+});
+</script>
+<script>
+    function seleccion(){
+    if(deposito.value != 0){
+            var x = document.getElementsByClassName("cambiar");
+            var i;
+            var length;
+            var input;
+            var valor;
+            var nuevoValor = '';
+            for (i = 0; i < x.length; i++) {
+                if (x[i].innerHTML == ''){
+                    x[i].innerHTML = deposito.value;
+                    input = x[i].closest('tr').id;
+                    length = input.length;
+                    input = input.slice(2,length);
+                    elemento = document.getElementById(input);
+                    valor = elemento.value;
+                    valor = valor + deposito.value;
+                    elemento.value = valor;
+                }
+            }
+            i=0;
+            while(x.length > 0){
+                x[i].closest('tr').className = "success";
+                x[i].className = "text-center";
+            }
+            document.getElementById('alertaAsignacion').className = "label label-warning hide";
+        }
+    }
+</script>
+{% if largo > 0 %}
+<script type="text/javascript">
+    $('#error').modal('show');
+</script>
+{% endif %}
+{% endblock %}
