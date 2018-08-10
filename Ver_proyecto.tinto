@@ -6,19 +6,22 @@ nota: virtualenv es para crear un entorno virtual en el que tenemos
 las librerias de python en una version y no hagan conflictos con las
 que estan en la maquina. Ej, django 2.1 y django 1.10
 
-2) Entrar en la carpeta del proyecto en este caso hola y teclear
-	
-	cd hola
+
+2) Crear una carpeta para el entorno (ej: entorno)
+	mkdir entorno                   (creo)
+	cd entorno						(Entro)
+	virtualenv -p python3 .			(creo el entorno para python3)
 	source bin/activate             (activamos el entorno virtual)
 
 nota: con "deactivate" lo desactivo
-	si hago "pip freeze" tiene que figurar dejango=1.10
+	si hago "pip freeze" deberia no tener muchas librerias
 
 
-3) Teniendo el entorno a la carpera Villa que es la que contiene
-las apps del proyecto y teclear
+3) Installar la version de django y reportlab para que ande el proyecto 
+	pip install django==1.10 reportlab
+
+	"Clonar la carpeta villa aqui"
 	
-	cd Villa
 	python3 manage.py runserver     (inicio el proyecto)
 
 4) crar un usuario
